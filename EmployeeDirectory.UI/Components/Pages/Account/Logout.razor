@@ -6,14 +6,14 @@
 
 @code {
     [CascadingParameter]
-    public HttpContext HttpContext{ get; set; }
+    public HttpContext _httpContext{ get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        if (HttpContext.User.Identity.IsAuthenticated)
+        if (_httpContext.User.Identity.IsAuthenticated)
         {
-            await HttpContext.SignOutAsync();
+            await _httpContext.SignOutAsync();
             NavigationManager.NavigateTo("/logout",true);
         }
     }
