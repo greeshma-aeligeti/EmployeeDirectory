@@ -5,12 +5,12 @@
 @using Microsoft.AspNetCore.Authentication
 @using  Microsoft.AspNetCore.Authentication.Cookies;
 @inject NavigationManager NavigationManager
-@inject AppDbContext appDbContext
+@inject AppDbContext _appDbContext
 
 <div class="row">
 
     <div class="col-lg-4 offset-lg-4 pt-4 pb-4 border">
-        <EditForm Model="@LModel" OnValidSubmit="Authenticate" FormName="LoginForm">
+        <EditForm Model="@_lModel" OnValidSubmit="Authenticate" FormName="LoginForm">
             <DataAnnotationsValidator/>
             <div>
                 <h3>LOGIN</h3>
@@ -18,17 +18,17 @@
             <div class="mb-3">
 
                 <label>User Name</label>
-                <InputText @bind-Value="LModel.UserName" class="form-control" placeholder="Username" />
-                <ValidationMessage For="()=>LModel.UserName" />
+                <InputText @bind-Value="_lModel.UserName" class="form-control" placeholder="Username" />
+                <ValidationMessage For="()=>_lModel.UserName" />
             </div>
             <div class="mb-3">
 
                 <label>Password</label>
-                <InputText @bind-Value="LModel.Password" class="form-control" placeholder="Password" />
-                <ValidationMessage For="()=>LModel.Password" />
+                <InputText @bind-Value="_lModel.Password" class="form-control" placeholder="Password" />
+                <ValidationMessage For="()=>_lModel.Password" />
             </div>
             <div class="mb-3 text-center">
-                <span class="text-danger">@errorMessage</span>
+                <span class="text-danger">@_errorMessage</span>
 
             </div>
             <div class="mb-3 d-grid gap-2">
@@ -46,30 +46,30 @@
 @code {
 
     [CascadingParameter]
-    public HttpContext? HttpContext{ get; set; }
+    public HttpContext? _httpContext{ get; set; }
      
     [SupplyParameterFromForm]
-    public LoginViewModel LModel { get; set; }=
+    public LoginViewModel _lModel { get; set; }=
     new LoginViewModel();
 
-    public string? errorMessage;
+    public string? _errorMessage;
     private async Task Authenticate()
     {
-        var userAccount = appDbContext.UserAccounts.Where(x => x.UserName == LModel.UserName).FirstOrDefault();
-        if(userAccount is null || userAccount.Password != LModel.Password)
+        var userAccount = _appDbContext.UserAccounts.Where(x => x.UserName == _lModel.UserName).FirstOrDefault();
+        if(userAccount is null || userAccount.Password != _lModel.Password)
         {
-            errorMessage = "Invalid User name or Password";
+            _errorMessage = "Invalid User name or Password";
             return;
         }
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name,LModel.UserName),
+            new Claim(ClaimTypes.Name,_lModel.UserName),
             new Claim(ClaimTypes.Role,userAccount.Role)
         };
 
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
-        await HttpContext.SignInAsync(principal);
+        var _identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var _principal = new ClaimsPrincipal(_identity);
+        await _httpContext.SignInAsync(_principal);
         NavigationManager.NavigateTo("/");
     }
 }
