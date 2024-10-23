@@ -1,3 +1,7 @@
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
+using EmployeeDirectory.API.APIServices;
 using EmployeeDirectory.DAL;
 using EmployeeDirectory.UI.Components;
 using EmployeeDirectory.UI.Data;
@@ -18,9 +22,9 @@ namespace EmployeeDirectory.UI
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
-            builder.Services.AddDbContext<EmployeeDBContext>(options =>
+           /* builder.Services.AddDbContext<EmployeeDBContext>(options =>
            options.UseSqlServer(builder.Configuration.GetConnectionString("EmpDB")));
-
+*/
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
@@ -29,10 +33,41 @@ namespace EmployeeDirectory.UI
                 options.Cookie.MaxAge = TimeSpan.FromMinutes(30);
                 options.AccessDeniedPath = "/access-denied";
             });
+
+            builder.Services.AddScoped<EmployeeAPIService>();
+
+
+
             builder.Services.AddAuthorization();
+            builder.Services.AddAntiforgery(options=>
+
+                options.Cookie.SameSite = SameSiteMode.Strict
+);
+            builder.Services.AddServerSideBlazor().AddCircuitOptions(options =>
+            {
+                options.DetailedErrors = true;
+            });
+
+
+            builder.Services
+      .AddBlazorise()
+      .AddBootstrapProviders()  // Add Bootstrap providers
+      .AddFontAwesomeIcons();   // Add FontAwesome icons
+
+
+            builder.Services.AddServerSideBlazor();
+            builder.Services.AddHttpClient<EmployeeAPIService>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7168"); // Replace with your actual API URL
+            });
+            builder.Services.AddHttpClient("API", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7168"); // API base URL
+            });
+
             builder.Services.AddCascadingAuthenticationState();
             var app = builder.Build();
-
+            
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
@@ -47,9 +82,13 @@ namespace EmployeeDirectory.UI
             app.UseAntiforgery();
             app.UseAuthentication();    
             app.UseAuthorization();
+            app.UseAntiforgery();
+            app.MapBlazorHub(); // For Blazor Server apps
+      
+
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
-
+            
             app.Run();
         }
     }

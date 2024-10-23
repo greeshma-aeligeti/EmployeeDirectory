@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazorise" Version="1.6.2" />
+    <PackageReference Include="Blazorise.Bootstrap" Version="1.6.2" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.6.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0-rc.2.24474.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0-rc.2.24474.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0-rc.2.24474.1">
@@ -16,7 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EmployeeDirectory.DAL\EmployeeDirectory.DAL.csproj" />
+    <ProjectReference Include="..\EmployeeDirectory.API\EmployeeDirectory.API.csproj" />
+    <ProjectReference Include="..\EmployeeDirectory.BLL\EmployeeDirectory.BLL.csproj" />
   </ItemGroup>
 
 </Project>

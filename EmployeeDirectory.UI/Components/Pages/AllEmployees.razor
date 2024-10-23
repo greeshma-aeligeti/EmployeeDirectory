@@ -1,0 +1,63 @@
+﻿@page "/allEmployees"
+@inject EmployeeAPIService _empApiService
+
+<h3>Employee List</h3>
+
+
+@if (_employees == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+  
+  
+
+    <SearchBox Placeholder="Search by name" filteredTasks="@_filteredEmployees" tasks1="_employees" OnSearchChanged="HandleSearchChanged" />
+
+
+    <Table class="table">
+        <TableHeader>
+            <TableRow>
+                <TableHeaderCell>ID</TableHeaderCell>
+                <TableHeaderCell>Name</TableHeaderCell>
+                <TableHeaderCell>Phone</TableHeaderCell>
+                <TableHeaderCell>Email</TableHeaderCell>
+                <TableHeaderCell>Role ID</TableHeaderCell>
+                <TableHeaderCell>Manager ID</TableHeaderCell>
+                <TableHeaderCell>Path</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            @foreach (var employee in _filteredEmployees)
+            {
+                <TableRow>
+                    <TableRowCell>@employee.Id</TableRowCell>
+                        <TableRowCell>@employee.Name</TableRowCell>
+                        <TableRowCell>@employee.Phone</TableRowCell>
+                        <TableRowCell>@employee.Email</TableRowCell>
+                        <TableRowCell>@employee.RoleID</TableRowCell>
+                        <TableRowCell>@(employee.ManagerID.HasValue ? employee.ManagerID.Value.ToString() : "N/A")</TableRowCell>
+                        <TableRowCell>@employee.Path</TableRowCell>
+                </TableRow>
+            }
+        </TableBody>
+    </Table>
+}
+
+@code {
+    private IEnumerable<EmployeeDTO> _employees;
+    private IEnumerable<EmployeeDTO> _filteredEmployees = new List<EmployeeDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _employees = await _empApiService.GetAllEmployees();
+        _filteredEmployees = _employees;
+    }
+  
+
+    private void HandleSearchChanged(IEnumerable<EmployeeDTO> employees)
+    {
+        _filteredEmployees = employees;
+    }
+}

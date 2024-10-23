@@ -19,24 +19,29 @@ namespace EmployeeDirectory.DAL.Repositories
         }
         public async Task<Employee> AddEmployee(Employee employee)
         {
-            if (employee.ManagerID != null)
-            {
-                var _manager = await GetEmployeeByID(employee.ManagerID.Value);
-                if (_manager == null)
-                {
-                    throw new Exception("Manager not found");
-                }
-                employee.Path = $"{_manager.Path}/{employee.Id}";
-
-            }
-            else
-            {
-                employee.Path=employee.Id.ToString();
-            }
+           
             try
             {
+                employee.Id = 0;
                 var _resp = _dbContext.Employees.Add(employee);
-                await _dbContext.SaveChangesAsync(); // line 37
+                await _dbContext.SaveChangesAsync(); 
+
+                if (employee.ManagerID != null)
+                {
+                    var _manager = await GetEmployeeByID(employee.ManagerID.Value);
+                    if (_manager == null)
+                    {
+                        throw new Exception("Manager not found");
+                    }
+                    employee.Path = $"{_manager.Path}/{employee.Id}";
+
+                }
+                else
+                {
+                    employee.Path = employee.Id.ToString();
+                }
+                _dbContext.Employees.Update(employee);
+                await _dbContext.SaveChangesAsync(); 
                 return _resp.Entity;
             }
             catch (DbUpdateException dbEx)
@@ -51,6 +56,13 @@ namespace EmployeeDirectory.DAL.Repositories
             }
 
             //throw new NotImplementedException();
+        }
+
+        public async Task<List<Employee>> GetAllEmployees()
+        {
+            var _allEmployees=await _dbContext.Employees.ToListAsync();
+            return _allEmployees;
+          //  throw new NotImplementedException();
         }
 
         public async Task<Employee> GetEmployeeByID(int id)

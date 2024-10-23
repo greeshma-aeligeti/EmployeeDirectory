@@ -1,0 +1,46 @@
+﻿@code {
+    [Parameter]
+    public string Placeholder { get; set; } = "Search...";
+
+    [Parameter]
+    public EventCallback<List<EmployeeDTO>> OnSearchChanged { get; set; }
+
+    [Parameter]
+    public IEnumerable<EmployeeDTO> filteredTasks { get; set; }
+
+    [Parameter]
+    public IEnumerable<EmployeeDTO> tasks1 { get; set; }
+
+
+
+    private string searchText = string.Empty;
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        searchText = e.Value.ToString();
+        ApplyFiltersAndSort();
+        await OnSearchChanged.InvokeAsync(filteredTasks.ToList());
+    }
+
+
+
+
+    private void ApplyFiltersAndSort()
+    {
+
+        filteredTasks = tasks1 ?? new List<EmployeeDTO>();
+        // Apply filters
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredTasks = new List<EmployeeDTO>(filteredTasks
+                .Where(t => t.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .ToList());
+        }
+        // drop.Refresh();
+        // Force re-rendering the component after applying filters
+        StateHasChanged();
+    }
+
+}
+
+<input type="text" placeholder="@Placeholder" @oninput="OnInput" class="form-control" />
