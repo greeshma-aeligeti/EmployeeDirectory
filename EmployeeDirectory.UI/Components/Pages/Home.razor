@@ -2,16 +2,25 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+
 
 <AuthorizeView>
     <Authorized>
-        <span>You are logged in as <b>@context.User.Identity.Name</b>.<a href="/logout">Click here </a>to logout</span>
-    </Authorized>
+        <span> <b>@context.User.Identity.Name</b>.<br/><a href="/logout">Click here </a>to logout</span>
+@*             <a href="/AddEmployee"> Add employee</a>
+
+ *@ 
+
+ <AllEmployees/>
+
+
+</Authorized>
     <NotAuthorized>
         <span>You are not logged in as <a href="/login">.Click here </a>to Login</span>
 
     </NotAuthorized>
 </AuthorizeView>
 
-Welcome to your new app.
+@code{
+   
+}

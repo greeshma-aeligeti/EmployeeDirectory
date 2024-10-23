@@ -1,0 +1,57 @@
+﻿@page "/AddEmployee"
+@using Microsoft.AspNetCore.Components.Server.Circuits
+@inject EmployeeAPIService _employeeApiService
+<h3>AddEmployee</h3>
+
+<EditForm Model="@_employeeModel" FormName="AddEmployeeForm"   OnValidSubmit="HandleValidSubmit" >
+   
+    <div class="mb-3">
+        <label for="Name">Name</label>
+        <InputText id="Name" @bind-Value="_employeeModel.Name" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Phone">Phone</label>
+        <InputText id="Phone" @bind-Value="_employeeModel.Phone" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Email">Email</label>
+        <InputText id="Email" @bind-Value="_employeeModel.Email" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="RoleID">Role ID</label>
+        <InputNumber id="RoleID" @bind-Value="_employeeModel.RoleID" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="ManagerID">Manager ID (optional)</label>
+        <InputNumber id="ManagerID" @bind-Value="_employeeModel.ManagerID" class="form-control" />
+    </div>
+
+ 
+    
+    <button type="submit" class="btn btn-primary">Create Employee</button>
+
+</EditForm>
+
+@code {
+
+    [SupplyParameterFromForm]
+    private EmployeeDTO _employeeModel { get; set; } = new EmployeeDTO();
+   
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var _resp=await _employeeApiService.AddEmployee(_employeeModel);
+
+
+        }
+        catch(Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+}

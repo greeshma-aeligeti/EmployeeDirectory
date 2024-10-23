@@ -1,0 +1,120 @@
+﻿@page "/customdropdown"
+@typeparam TItem
+
+@using System.Reflection
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.Bootstrap
+@using Blazorise.Icons.FontAwesome
+
+
+<div class="dropdown" @onfocusout="OnFocusOut" @onfocusin="OnFocusIn">
+    <InputText @bind-Value="searchText" @onchange="FilterItems" @onfocus="ShowDropdown" Placeholder="@Placeholder" class="form-control" />
+    <div class="dropdown-menu @(isDropdownVisible ? "show" : "")" style="width: 100%;">
+        @if (filteredItems.Count == 0)
+        {
+            <a class="dropdown-item disabled" href="#">No results found.</a>
+        }
+        else
+        {
+            @foreach (var item in filteredItems)
+            {
+                <a class="dropdown-item" href="javascript:void(0)" @onclick="() => OnSelectedValueChanged(GetPropertyValue(item, IdPropertyName))">@GetPropertyValue(item, DisplayPropertyName)</a>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<TItem> Items { get; set; }
+
+    [Parameter]
+    public string DisplayPropertyName { get; set; }
+
+    [Parameter]
+    public string IdPropertyName { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ValueChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> ValueChangedS { get; set; }
+
+
+    [Parameter]
+    public string Placeholder { get; set; }
+
+    private string searchText = string.Empty;
+    private bool isDropdownVisible = false;
+    private List<TItem> filteredItems = new();
+
+    protected override void OnParametersSet()
+    {
+        filteredItems = new List<TItem>(Items);
+    }
+
+    private async Task OnSelectedValueChanged(object idValue)
+    {
+        if (ValueChanged.HasDelegate)
+        {
+            int id = Convert.ToInt32(idValue);
+            var selectedItem = Items.FirstOrDefault(item => GetPropertyValue(item, IdPropertyName).Equals(idValue));
+            if (selectedItem != null)
+            {
+                searchText = GetPropertyValue(selectedItem, DisplayPropertyName).ToString();
+            }
+            filteredItems = new List<TItem>(Items);
+            await ValueChanged.InvokeAsync(id); // Notify parent with the selected ID
+            isDropdownVisible = false;
+        }
+    }
+
+    private void FilterItems(ChangeEventArgs e)
+    {
+        searchText = e.Value.ToString();
+        Console.WriteLine(searchText);
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredItems = new List<TItem>(Items);
+        }
+        else
+        {
+            filteredItems = Items.Where(x => GetPropertyValue(x, DisplayPropertyName).ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private async Task ShowDropdown()
+    {
+        isDropdownVisible = true;
+    }
+
+    private async Task OnFocusIn(FocusEventArgs e)
+    {
+        await ShowDropdown();
+    }
+
+    private async Task OnFocusOut(FocusEventArgs e)
+    {
+        // Delay hiding to allow interaction with dropdown items
+        await Task.Delay(150);
+        isDropdownVisible = false;
+    }
+
+    private object GetPropertyValue(object obj, string propertyName)
+    {
+        if (obj == null)
+        {
+            throw new ArgumentNullException(nameof(obj), "The object cannot be null.");
+        }
+
+        var propertyInfo = obj.GetType().GetProperty(propertyName);
+        if (propertyInfo == null)
+        {
+            throw new ArgumentException($"Property '{propertyName}' not found on object of type '{obj.GetType()}'.");
+        }
+
+        return propertyInfo.GetValue(obj);
+    }
+
+}

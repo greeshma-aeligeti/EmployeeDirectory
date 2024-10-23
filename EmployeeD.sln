@@ -5,11 +5,11 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeDirectory.UI", "EmployeeDirectory.UI\EmployeeDirectory.UI.csproj", "{EE347964-5D44-4600-89EB-DD15C0FBC1B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeDirectory.DAL", "EmployeeDirectory.DAL\EmployeeDirectory.DAL.csproj", "{86DECA6A-9DA0-4A3A-8E8A-2CCF6D17FE0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeDirectory.DAL", "EmployeeDirectory.DAL\EmployeeDirectory.DAL.csproj", "{86DECA6A-9DA0-4A3A-8E8A-2CCF6D17FE0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeDirectory.BLL", "EmployeeDirectory.BLL\EmployeeDirectory.BLL.csproj", "{A8C02199-16C0-41EC-BA81-352270787A85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeDirectory.BLL", "EmployeeDirectory.BLL\EmployeeDirectory.BLL.csproj", "{A8C02199-16C0-41EC-BA81-352270787A85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeDirectory.API", "EmployeeDirectory.API\EmployeeDirectory.API.csproj", "{7FE68819-35DD-422B-9145-BF55B5F2483F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeDirectory.API", "EmployeeDirectory.API\EmployeeDirectory.API.csproj", "{7FE68819-35DD-422B-9145-BF55B5F2483F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
