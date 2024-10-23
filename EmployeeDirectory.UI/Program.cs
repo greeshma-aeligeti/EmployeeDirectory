@@ -1,3 +1,4 @@
+using EmployeeDirectory.DAL;
 using EmployeeDirectory.UI.Components;
 using EmployeeDirectory.UI.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -17,6 +18,9 @@ namespace EmployeeDirectory.UI
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
+            builder.Services.AddDbContext<EmployeeDBContext>(options =>
+           options.UseSqlServer(builder.Configuration.GetConnectionString("EmpDB")));
+
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
