@@ -21,19 +21,9 @@ namespace EmployeeDirectory.BLL.Services
 
         public async Task<Employee> AddEmployee(EmployeeDTO employeeDTO)
         {
-            Employee _employee = new Employee
-            {
+            Employee _employee = MapToEmployee(employeeDTO);
 
-                Id = employeeDTO.Id,
-                Name = employeeDTO.Name,
-                PhoneNumber = employeeDTO.Phone,
-                EmailAddress = employeeDTO.Email,
-                RoleID = employeeDTO.RoleID,
-                ManagerID = employeeDTO.ManagerID,
-                Path = employeeDTO.Path,
-            };
-
-          var _response=await _repository.AddEmployee(_employee);
+            var _response=await _repository.AddEmployee(_employee);
             return _response;
 
           
@@ -43,19 +33,17 @@ namespace EmployeeDirectory.BLL.Services
             //throw new NotImplementedException();
         }
 
+        public async Task<List<EmployeeDTO>> GetAllEmployees()
+        {
+            var _allEmployees=await _repository.GetAllEmployees();
+                return _allEmployees.Select(MapToEmployeeDTO).ToList();
+           // throw new NotImplementedException();
+        }
+
         public async Task<EmployeeDTO> GetEmployeeByID(int id)
         {
             var _employee = await _repository.GetEmployeeByID(id);
-            return new EmployeeDTO
-            {
-                Id = _employee.Id,
-                Name = _employee.Name,
-                Phone = _employee.PhoneNumber,
-                Email = _employee.EmailAddress,
-                RoleID = _employee.RoleID,
-                ManagerID = _employee.ManagerID,
-                Path = _employee.Path,
-            };
+            return MapToEmployeeDTO(_employee);
 
             //throw new NotImplementedException();
         }
@@ -63,19 +51,39 @@ namespace EmployeeDirectory.BLL.Services
         public async Task<List<EmployeeDTO>> GetSubordinatesAsync(int managerId)
         {
             var _subordinates = await _repository.GetSubordinatesAsync(managerId);
-            var _resp = _subordinates.Select(_s => new EmployeeDTO
-            {
-                Id = _s.Id,
-                Name = _s.Name,
-                Phone = _s.PhoneNumber,
-                Email = _s.EmailAddress,
-                RoleID = _s.RoleID,
-                ManagerID = _s.ManagerID,
-                Path = _s.Path,
-
-            }).ToList();
+            var _resp = _subordinates.Select(MapToEmployeeDTO
+            ).ToList();
             return _resp;
             //throw new NotImplementedException();
         }
+
+        private Employee MapToEmployee(EmployeeDTO employeeDTO)
+        {
+            return new Employee
+            {
+                Id = employeeDTO.Id,
+                Name = employeeDTO.Name,
+                PhoneNumber = employeeDTO.Phone,
+                EmailAddress = employeeDTO.Email,
+                RoleID = employeeDTO.RoleID,
+                ManagerID = employeeDTO.ManagerID,
+                Path = employeeDTO.Path
+            };
+        }
+
+        private EmployeeDTO MapToEmployeeDTO(Employee employee)
+        {
+            return new EmployeeDTO
+            {
+                Id = employee.Id,
+                Name = employee.Name,
+                Phone = employee.PhoneNumber,
+                Email = employee.EmailAddress,
+                RoleID = employee.RoleID,
+                ManagerID = employee.ManagerID,
+                Path = employee.Path
+            };
+        }
+
     }
 }

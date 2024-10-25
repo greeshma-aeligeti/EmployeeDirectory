@@ -1,0 +1,25 @@
+﻿@* @page "/Account/Logout"
+ *@@using EmployeeDirectory.Web.UI.Data
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> signInManager
+
+@inject NavigationManager NavigationManager
+<p>You've successfully logged out</p>
+
+@code {
+    [CascadingParameter]
+    public HttpContext _httpContext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (_httpContext.User.Identity.IsAuthenticated)
+        {
+            await _httpContext.SignOutAsync();
+           // await signInManager.SignOutAsync();
+
+            NavigationManager.NavigateTo("/logout", true);
+        }
+    }
+}

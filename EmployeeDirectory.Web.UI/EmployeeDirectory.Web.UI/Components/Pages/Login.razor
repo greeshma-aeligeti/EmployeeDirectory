@@ -1,0 +1,100 @@
+﻿@page "/Account/Login"
+@using EmployeeDirectory.Web.UI.Client.Authentication
+@using EmployeeDirectory.Web.UI.Data
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Forms
+@inject PersistentComponentState persistentState
+
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
+@inject NavigationManager NavigationManager
+@using NetcodeHub.Packages.Components.Validations.OnInput
+
+<h1>Log in</h1>
+<div class="row">
+
+    <div class="col-4">
+
+        @if (!string.IsNullOrEmpty(Error))
+        {
+            <div class="alert alert-danger">@Error</div>
+        }      
+        <section>
+            <EditForm Model="@Input" method="POST"  OnValidSubmit="LoginUser" FormName="loginForm">
+                <DataAnnotationsValidator/>
+                <h2>Use a local account to log in.</h2>
+                <hr/>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="@Input.Email" autocomplete="email" class="form-control" placeholder="JohnDoe@gmail.com" />
+                    <ValidationMessage For="@(() => Input.Email)" class="text-danger" />
+
+
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="@Input.Password" type="password" autocomplete="current-password" class="form-control" placeholder="User password" />
+                    <ValidationMessage For="@(() => Input.Password)" class="text-danger" />
+                </div>
+                <div>
+                    <button class="w-100 btn btn-lg btn-primary" type="submit">Log in</button>
+                </div>
+                <div>
+
+                    <p>New User?<a href="Account/Register">Register</a></p>
+
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+
+
+@code {
+    string? Error = "";
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+    protected override Task OnInitializedAsync()
+    {
+        Input ??= new();
+        return base.OnInitializedAsync();
+    }
+    public async Task LoginUser()
+    {
+        var findUser = await userManager.FindByEmailAsync(Input.Email);
+        if (findUser == null) Error = "User Not found";
+        var result = await signInManager.CheckPasswordSignInAsync(findUser!, Input.Password, false);
+        if (!result.Succeeded)
+            Error = "Error Occured";
+        var _resp=  await signInManager.PasswordSignInAsync(findUser!, Input.Password, false,false);
+        await signInManager.SignInAsync(findUser, isPersistent: true);
+        // Save the user session
+        var userSession = new UserSession
+            {
+                FullName = findUser.FullName,
+                Email = findUser.Email
+            };
+
+        // Save the user session to the persistent state
+        //persistentState.PersistAsJson(nameof(UserSession), userSession);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+    }
+
+}

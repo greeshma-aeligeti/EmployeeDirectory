@@ -1,0 +1,75 @@
+﻿@page "/allEmployees"
+@using EmployeeDirectory.BLL.DTOs
+@inject EmployeeAPIService _empApiService
+@rendermode InteractiveServer
+<h3>Employee List</h3>
+
+
+@if (_employees == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+
+   @*  <SearchableDropdown TItem="EmployeeDTO" Items="_employees" DisplayPropertyName="Name" Placeholder="Select Target" IdPropertyName="Id" ValueChangedS="OnEmployeeSelected" />
+ *@
+    @if (selectedEmployee != null)
+    {
+        <div>
+            <h3>Employee Details</h3>
+            <p><strong>Name:</strong> @selectedEmployee.Name</p>
+            <p><strong>Phone:</strong> @selectedEmployee.Phone</p>
+            <p><strong>Email:</strong> @selectedEmployee.Email</p>
+            <p><strong>Role ID:</strong> @selectedEmployee.RoleID</p>
+            <p><strong>Manager ID:</strong> @selectedEmployee.ManagerID</p>
+            <p><strong>Path:</strong> @selectedEmployee.Path</p>
+        </div>
+    }
+
+@* 
+    <Table class="table">
+        <TableHeader>
+            <TableRow>
+                <TableHeaderCell>Name</TableHeaderCell>
+                <TableHeaderCell>Phone</TableHeaderCell>
+                <TableHeaderCell>Email</TableHeaderCell>
+                <TableHeaderCell>Role ID</TableHeaderCell>
+                <TableHeaderCell>Manager ID</TableHeaderCell>
+              
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            @foreach (var employee in _filteredEmployees)
+            {
+                <TableRow>
+                        <TableRowCell>@employee.Name</TableRowCell>
+                        <TableRowCell>@employee.Phone</TableRowCell>
+                        <TableRowCell>@employee.Email</TableRowCell>
+                        <TableRowCell>@employee.RoleID</TableRowCell>
+                        <TableRowCell>@(employee.ManagerID.HasValue ? employee.ManagerID.Value.ToString() : "N/A")</TableRowCell>
+                </TableRow>
+            }
+        </TableBody>
+    </Table> *@
+}
+
+@code {
+    private IEnumerable<EmployeeDTO> _employees = new List<EmployeeDTO>();
+    private EmployeeDTO selectedEmployee;
+
+    private void OnEmployeeSelected(string selectedId)
+    {
+        int id = int.Parse(selectedId);
+        selectedEmployee = _employees.FirstOrDefault(e => e.Id == id);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _employees = await _empApiService.GetAllEmployees();
+    }
+
+
+    
+}

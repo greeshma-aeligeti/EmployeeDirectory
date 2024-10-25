@@ -1,0 +1,105 @@
+﻿@page "/Account/Register"
+
+@using EmployeeDirectory.Web.UI.Data
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
+@inject NavigationManager NavigationManager
+@using NetcodeHub.Packages.Components.Validations.OnInput
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="@Input" method="post" OnValidSubmit="@RegisterUser" FormName="register">
+            <h2>Create a new account.</h2>
+            <hr/>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="@Input.Name" autocomplete="name" class="form-control" placeholder="JohnDoe" />
+                <ValidationMessage For="@(()=>Input.Name)" class="text-danger" />
+
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="@Input.Email" autocomplete="email" class="form-control" placeholder="JohnDoe@gmail.com" />
+                <ValidationMessage For="@(()=>Input.Email)" class="text-danger" />
+
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="@Input.Password" type="password" autocomplete="current-password" class="form-control" placeholder="User password" />
+                <ValidationMessage For="@(()=>Input.Password)" class="text-danger" />
+
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="@Input.ConfirmPassword" autocomplete="cpass" class="form-control"  />
+                <ValidationMessage For="@(()=>Input.ConfirmPassword)" class="text-danger" />
+
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+
+        </EditForm>
+
+    </div>
+
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        Input ??= new();
+        base.OnParametersSet();
+    }
+
+
+
+    private sealed class InputModel
+    {
+        [Required]
+        [Display(Name = "Fullname")]
+        public string Name { get; set; } = "";
+
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [StringLength(100,
+        ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.",
+        MinimumLength = 6
+        )]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; } = "";
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm Password")]
+        [Compare("Password",ErrorMessage ="The password and confirm password doesn't match")]
+        public string ConfirmPassword { get; set; } = "";
+
+    }
+
+    public async Task RegisterUser()
+    {
+        var user = new ApplicationUser()
+            {
+                FullName = Input.Name,
+                UserName = Input.Name,
+                Email = Input.Email,
+                PasswordHash = Input.Password
+            };
+        var result = await userManager.CreateAsync(user, Input.Password);
+        NavigationManager.NavigateTo("/Account/Login");
+
+
+    }
+
+}
