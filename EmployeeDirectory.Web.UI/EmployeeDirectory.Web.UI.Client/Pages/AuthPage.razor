@@ -1,0 +1,28 @@
+﻿@page "/auth"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<PageTitle>Auth</PageTitle>
+<h1>
+    You are authenticated
+
+</h1>
+<AuthorizeView>
+    Hello @context.User.Identity?.Name!
+</AuthorizeView>
+
+<button @onclick="RefreshAuthentication">Refresh Authentication</button>
+
+@code {
+    private async Task RefreshAuthentication()
+    {
+        // This should be called on an instance of the provider, which is correctly injected.
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // Force re-render
+        StateHasChanged();
+    }
+}
