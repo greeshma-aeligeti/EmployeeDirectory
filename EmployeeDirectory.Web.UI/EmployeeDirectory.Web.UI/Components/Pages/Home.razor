@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject EmployeeAPIService _empApiService
+@using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
 <PageTitle>Home</PageTitle>
 
@@ -7,32 +8,67 @@
 
 <SearchableDropdown TItem="EmployeeDTO" Items="_employees" DisplayPropertyName="Name" Placeholder="Search..." IdPropertyName="Id" ValueChangedS="OnEmployeeSelected" />
 
-@if (selectedEmployee != null)
+
+@if (_selectedEmployee != null)
 {
-    <div>
+    
         <h3>Employee Details</h3>
-        <p><strong>Name:</strong> @selectedEmployee.Name</p>
-        <p><strong>Phone:</strong> @selectedEmployee.Phone</p>
-        <p><strong>Email:</strong> @selectedEmployee.Email</p>
-        <p><strong>Role ID:</strong> @selectedEmployee.RoleID</p>
-        <p><strong>Manager ID:</strong> @selectedEmployee.ManagerID</p>
-        <p><strong>Path:</strong> @selectedEmployee.Path</p>
-    </div>
+    <p><strong>Name:</strong> @_selectedEmployee.Name</p>
+    <p><strong>Phone:</strong> @_selectedEmployee.Phone</p>
+    <p><strong>Email:</strong> @_selectedEmployee.Email</p>
+    <p><strong>Role ID:</strong> @_selectedEmployee.RoleID</p>
+    <p><strong>Manager ID:</strong> @_selectedEmployee.ManagerID</p>
+    <h4>Full Hierarchy Tree</h4>
+    <EmployeeTree Employee="_selectedEmployee" HigherAuthorities="_higherAuthorities" Subordinates="_subordinates" />
+
+    <AuthorizeView Roles="Intern">
+           <Authorized>
+            <button>Interns</button>
+
+           </Authorized>
+       </AuthorizeView>
+
+    <AuthorizeView Roles="Developer,Team Lead">
+        <Authorized>
+            <button>Developer and teamleads</button>
+
+        </Authorized>
+    </AuthorizeView>
+
+    <AuthorizeView Roles="CEO">
+        <Authorized>
+            <button>CEO</button>
+
+        </Authorized>
+    </AuthorizeView>
 }
 
 @code {
     private IEnumerable<EmployeeDTO> _employees = new List<EmployeeDTO>();
-    private EmployeeDTO selectedEmployee;
+    private EmployeeDTO _selectedEmployee;
+    private IEnumerable<EmployeeDTO> _higherAuthorities = new List<EmployeeDTO>();
+    private IEnumerable<EmployeeDTO> _subordinates = new List<EmployeeDTO>();
 
-    private void OnEmployeeSelected(string selectedId)
+  
+
+
+    private async Task OnEmployeeSelected(string selectedId)
     {
         int id = int.Parse(selectedId);
-        selectedEmployee = _employees.FirstOrDefault(e => e.Id == id);
+        _selectedEmployee = _employees.FirstOrDefault(e => e.Id == id);
+        _subordinates = await _empApiService.GetAllSubordinates(id);
+        _higherAuthorities = await _empApiService.GetHigherAuthorities(id);
+
+
+
+
     }
 
     protected override async Task OnInitializedAsync()
     {
         _employees = await _empApiService.GetAllEmployees();
+
+
     }
 
 

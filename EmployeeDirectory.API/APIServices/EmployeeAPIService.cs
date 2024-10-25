@@ -17,6 +17,9 @@ namespace EmployeeDirectory.API.APIServices
     {
         private readonly HttpClient _httpClient;
         private IEnumerable<EmployeeDTO> _employees;
+        private IEnumerable<EmployeeDTO> _subordinates;
+        private IEnumerable<EmployeeDTO> _higherEmployees;
+
         public EmployeeAPIService(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -32,6 +35,29 @@ namespace EmployeeDirectory.API.APIServices
             _employees= JsonConvert.DeserializeObject<List<EmployeeDTO>>(_response, settings);
             return _employees;
 
+        }
+        public async Task<IEnumerable<EmployeeDTO>> GetAllSubordinates(int managerId)
+        {
+            var _response = await _httpClient.GetStringAsync($"api/Employee/GetSubordinates/{managerId}");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _subordinates = JsonConvert.DeserializeObject<List<EmployeeDTO>>(_response, settings);
+            return _subordinates;
+        }
+
+        public async Task<IEnumerable<EmployeeDTO>> GetHigherAuthorities(int managerId)
+        {
+            var _response = await _httpClient.GetStringAsync("api/Employee/GetHigherAuthorities");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _higherEmployees = JsonConvert.DeserializeObject<List<EmployeeDTO>>(_response, settings);
+            return _higherEmployees;
         }
         public async Task<EmployeeDTO> AddEmployee(EmployeeDTO employeeDTO)
 

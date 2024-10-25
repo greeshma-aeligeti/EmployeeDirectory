@@ -23,12 +23,18 @@ namespace EmployeeDirectory.API.Controllers
             return Ok(_addEmployee);
         }
 
-        [HttpGet]
-        [Route("GetSubordinates")]
+        [HttpGet("GetSubordinates/{managerId}")]
         public async Task<ActionResult<IEnumerable<EmployeeDTO>>> GetAllSubordinates(int managerId)
         {
             var _subordinates=await _employeeService.GetSubordinatesAsync(managerId);
             return Ok(_subordinates);
+        }
+        [HttpGet]
+        [Route("GetHigherAuthorities")]
+        public async Task<ActionResult<IEnumerable<EmployeeDTO>>> GetAllHigherAuthorities(int id)
+        {
+            var _higherEmployees = await _employeeService.GetHigherAuthorities(id);
+            return Ok(_higherEmployees);
         }
         [HttpGet]
         [Route("AllEmployees")]

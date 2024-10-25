@@ -76,6 +76,26 @@ namespace EmployeeDirectory.DAL.Repositories
             // throw new NotImplementedException();
         }
 
+        public async Task<List<Employee>> GetHigherAuthorities(int id)
+        {
+            var _employee=await GetEmployeeByID(id);
+            if(_employee==null || string.IsNullOrEmpty(_employee.Path))
+            {
+                return new List<Employee>();
+            }
+            var _pathIds=_employee.Path.Split('/').Select(int.Parse).ToList();
+            _pathIds.Remove(id);
+
+            List<Employee> _higherEmployees = new List<Employee>();
+            foreach(var  _pathId in _pathIds) {
+            var _emp=await GetEmployeeByID(_pathId);
+                _higherEmployees.Add(_emp);
+            }
+            return _higherEmployees;
+            //throw new NotImplementedException();
+
+        }
+
         public async Task<List<Employee>> GetSubordinatesAsync(int managerId)
         {
 

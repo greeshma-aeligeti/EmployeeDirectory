@@ -48,6 +48,14 @@ namespace EmployeeDirectory.BLL.Services
             //throw new NotImplementedException();
         }
 
+        public async Task<List<EmployeeDTO>> GetHigherAuthorities(int id)
+        {
+            var _higherEmployees=await _repository.GetHigherAuthorities(id);
+            var _resp=_higherEmployees.Select(MapToEmployeeDTO).ToList();   
+            return _resp;
+            throw new NotImplementedException();
+        }
+
         public async Task<List<EmployeeDTO>> GetSubordinatesAsync(int managerId)
         {
             var _subordinates = await _repository.GetSubordinatesAsync(managerId);

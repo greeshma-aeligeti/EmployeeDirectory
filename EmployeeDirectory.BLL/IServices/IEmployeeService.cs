@@ -15,6 +15,7 @@ namespace EmployeeDirectory.BLL.IServices
         Task<EmployeeDTO> GetEmployeeByID(int id);
         Task<List<EmployeeDTO>> GetSubordinatesAsync(int managerId);
         Task<List<EmployeeDTO>> GetAllEmployees();
+        Task<List<EmployeeDTO>> GetHigherAuthorities(int id);
 
 
 

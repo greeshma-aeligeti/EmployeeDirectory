@@ -1,0 +1,46 @@
+﻿
+@if (Employee != null)
+{
+    <ul>
+        <li>
+            @Employee.Name
+
+            <!-- Display higher authorities on the left -->
+            @if (HigherAuthorities?.Any() == true)
+            {
+                <ul>
+                    @foreach (var authority in HigherAuthorities)
+                    {
+                        <li>
+                            <EmployeeTree Employee="authority" HigherAuthorities="new List<EmployeeDTO>()" Subordinates="new List<EmployeeDTO>()" />
+                        </li>
+                    }
+                </ul>
+            }
+
+            <!-- Display subordinates on the right -->
+            @if (Subordinates?.Any() == true)
+            {
+                <ul>
+                    @foreach (var subordinate in Subordinates)
+                    {
+                        <li>
+                            <EmployeeTree Employee="subordinate" HigherAuthorities="new List<EmployeeDTO>()" Subordinates="new List<EmployeeDTO>()" />
+                        </li>
+                    }
+                </ul>
+            }
+        </li>
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public EmployeeDTO Employee { get; set; }
+
+    [Parameter]
+    public IEnumerable<EmployeeDTO> HigherAuthorities { get; set; } = new List<EmployeeDTO>();
+
+    [Parameter]
+    public IEnumerable<EmployeeDTO> Subordinates { get; set; } = new List<EmployeeDTO>();
+}

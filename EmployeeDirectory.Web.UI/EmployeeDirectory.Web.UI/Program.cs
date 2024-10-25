@@ -65,6 +65,7 @@ namespace EmployeeDirectory.Web.UI
       .AddBootstrap5Providers()  // Add Bootstrap providers
       .AddFontAwesomeIcons();
             builder.Services.AddIdentityCore<ApplicationUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
