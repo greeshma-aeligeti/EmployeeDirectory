@@ -1,0 +1,78 @@
+﻿@code {
+    [Parameter] public EmployeeDTO Employee { get; set; }
+    [Inject] public EmployeeAPIService EmployeeService { get; set; }
+
+    private IEnumerable<EmployeeDTO> directReports;
+
+    protected override async Task OnInitializedAsync()
+    {
+        directReports = await EmployeeService.GetNextSubordinates(Employee.Id);
+    }
+}
+
+<div class="employee-node">
+    <div class="employee-details">
+        <div class="employee-info">
+            <p class="employee-name">@Employee.Name</p>
+            <p class="employee-title">@Employee.Email</p>
+        </div>
+    </div>
+
+    @if (directReports != null && directReports.Any())
+    {
+        <div class="direct-reports">
+            @foreach (var report in directReports)
+            {
+                <EmployeeNode Employee="report" />
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .employee-node {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px;
+        width: fit-content;
+    }
+
+    .employee-details {
+        display: flex;
+        align-items: center;
+    }
+
+    .employee-photo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .employee-info {
+        font-size: 14px;
+    }
+
+    .employee-name {
+        font-weight: bold;
+    }
+
+    .employee-title {
+        color: gray;
+    }
+
+    .direct-reports {
+        margin-left: 20px;
+    }
+
+    .manager-chain {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .connector {
+        margin: 0 5px;
+        color: #666;
+    }
+</style>

@@ -13,9 +13,14 @@ namespace EmployeeDirectory.BLL.IServices
        
             Task<Employee> AddEmployee(EmployeeDTO employeeDTO);
         Task<EmployeeDTO> GetEmployeeByID(int id);
+        Task AddSubordinates(EmployeeTreeNode parentNode);
         Task<List<EmployeeDTO>> GetSubordinatesAsync(int managerId);
         Task<List<EmployeeDTO>> GetAllEmployees();
         Task<List<EmployeeDTO>> GetHigherAuthorities(int id);
+        Task<List<EmployeeDTO>> GetNextSubordinatesAsync(int managerId);
+        Task<List<int>> GetAllManagersId();
+        Task<EmployeeTreeNode> BuildFullEmployeeTree(int rootEmployeeId);
+
 
 
 

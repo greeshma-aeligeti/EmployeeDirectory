@@ -65,6 +65,16 @@ namespace EmployeeDirectory.DAL.Repositories
           //  throw new NotImplementedException();
         }
 
+        public async Task<List<int>> GetAllManagerIDs()
+        {
+            var _allManagerIds = await _dbContext.Employees
+                  .Where(e => e.ManagerID.HasValue)
+                  .Select(e => e.ManagerID.Value)
+                  .Distinct()
+                  .ToListAsync();
+            return _allManagerIds;
+        }
+
         public async Task<Employee> GetEmployeeByID(int id)
         {
 
@@ -93,6 +103,12 @@ namespace EmployeeDirectory.DAL.Repositories
             }
             return _higherEmployees;
             //throw new NotImplementedException();
+
+        }
+
+        public async Task<List<Employee>> GetNextSubordinatesAsync(int managerId)
+        {
+            return await _dbContext.Employees.Where(e=>e.ManagerID == managerId).ToListAsync();
 
         }
 

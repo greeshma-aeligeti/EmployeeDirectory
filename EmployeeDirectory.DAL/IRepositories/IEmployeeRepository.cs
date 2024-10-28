@@ -14,5 +14,8 @@ namespace EmployeeDirectory.DAL.IRepositories
         Task<List<Employee>> GetAllEmployees();
         Task<List<Employee>> GetHigherAuthorities(int id);
         Task<Employee> AddEmployee(Employee employee);
+        Task<List<Employee>> GetNextSubordinatesAsync(int managerId);
+        Task<List<int>> GetAllManagerIDs();
+
     }
 }

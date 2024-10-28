@@ -18,6 +18,87 @@ namespace EmployeeDirectory.BLL.Services
             _repository = repository;
         
         }
+        public async Task<EmployeeTreeNode> BuildFullEmployeeTree(int rootEmployeeId)
+        {
+            // Get the root employee (current employee)
+            var _rootEmployee = await GetEmployeeByID(rootEmployeeId);
+            if (_rootEmployee == null) return null;
+
+            // Get the list of higher authorities
+            var _higherAuthorities = await GetHigherAuthorities(rootEmployeeId);
+
+            // Build the tree from the highest authority down to the root employee
+            EmployeeTreeNode _topNode = null;
+            EmployeeTreeNode _currentNode = null;
+
+            foreach (var _authority in _higherAuthorities)
+            {
+                var _authorityNode = new EmployeeTreeNode
+                {
+                    Employee = _authority,
+                    Subordinates = new List<EmployeeTreeNode>()
+                };
+
+                // If it's the first node, it's the top of the tree
+                if (_topNode == null)
+                {
+                    _topNode = _authorityNode;
+                }
+
+                // Attach the previous node to the current one
+                if (_currentNode != null)
+                {
+                    _currentNode.Subordinates.Add(_authorityNode);
+                }
+
+                // Move to the current node
+                _currentNode = _authorityNode;
+            }
+
+            // Create the node for the root employee (who we passed in)
+            var _rootEmployeeNode = new EmployeeTreeNode
+            {
+                Employee = _rootEmployee,
+                Subordinates = new List<EmployeeTreeNode>()
+            };
+
+            // Attach the root employee node to the last higher authority
+            if (_currentNode != null)
+            {
+                _currentNode.Subordinates.Add(_rootEmployeeNode);
+            }
+            else
+            {
+                // If there are no higher authorities, the root employee is the top node
+                _topNode = _rootEmployeeNode;
+            }
+
+            // Recursively add all subordinates of the root employee
+            await AddSubordinates(_rootEmployeeNode);
+
+            return _topNode;
+        }
+
+        public async Task AddSubordinates(EmployeeTreeNode parentNode)
+        {
+            var _subordinates = await GetNextSubordinatesAsync(parentNode.Employee.Id);
+
+            foreach (var _subordinate in _subordinates)
+            {
+                var _subordinateNode = new EmployeeTreeNode
+                {
+                    Employee = _subordinate,
+                    Subordinates = new List<EmployeeTreeNode>()
+                };
+
+                // Recursively add subordinates of the current employee
+                await AddSubordinates(_subordinateNode);
+
+                // Add the subordinate node to the parent node
+                parentNode.Subordinates.Add(_subordinateNode);
+            }
+        }
+
 
         public async Task<Employee> AddEmployee(EmployeeDTO employeeDTO)
         {
@@ -40,6 +121,12 @@ namespace EmployeeDirectory.BLL.Services
            // throw new NotImplementedException();
         }
 
+        public async Task<List<int>> GetAllManagersId()
+        {
+            var _allManagerIds=await _repository.GetAllManagerIDs();
+            return _allManagerIds.ToList();
+        }
+
         public async Task<EmployeeDTO> GetEmployeeByID(int id)
         {
             var _employee = await _repository.GetEmployeeByID(id);
@@ -54,6 +141,12 @@ namespace EmployeeDirectory.BLL.Services
             var _resp=_higherEmployees.Select(MapToEmployeeDTO).ToList();   
             return _resp;
             throw new NotImplementedException();
+        }
+
+        public async Task<List<EmployeeDTO>> GetNextSubordinatesAsync(int managerId)
+        {
+            var _nextSubordinates = await _repository.GetNextSubordinatesAsync(managerId);
+            var _resp=_nextSubordinates.Select(MapToEmployeeDTO).ToList(); return _resp;
         }
 
         public async Task<List<EmployeeDTO>> GetSubordinatesAsync(int managerId)
@@ -93,5 +186,7 @@ namespace EmployeeDirectory.BLL.Services
             };
         }
 
+      
+       
     }
 }

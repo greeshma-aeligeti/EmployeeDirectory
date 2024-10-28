@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject EmployeeAPIService _empApiService
+@using EmployeeDirectory.BLL
 @using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
 <PageTitle>Home</PageTitle>
@@ -19,8 +20,20 @@
     <p><strong>Role ID:</strong> @_selectedEmployee.RoleID</p>
     <p><strong>Manager ID:</strong> @_selectedEmployee.ManagerID</p>
     <h4>Full Hierarchy Tree</h4>
-    <EmployeeTree Employee="_selectedEmployee" HigherAuthorities="_higherAuthorities" Subordinates="_subordinates" />
+@*     <EmployeeTree Employee="_selectedEmployee" HigherAuthorities="_higherAuthorities" Subordinates="_subordinates" />
+ *@
+@* 
+ <EmployeeHierarchy rootEmployeeId="_selectedEmployee.Id"/>
+ *@
 
+    @if (_employeeTree != null)
+    {
+        <EmployeeTree EmployeeNode="_employeeTree" SelectedEmployee="_selectedEmployee" RootEmployee="_employeeTree.Employee" />
+    }
+    else
+    {
+        <p>Loading employee tree...</p>
+    }
     <AuthorizeView Roles="Intern">
            <Authorized>
             <button>Interns</button>
@@ -48,8 +61,9 @@
     private EmployeeDTO _selectedEmployee;
     private IEnumerable<EmployeeDTO> _higherAuthorities = new List<EmployeeDTO>();
     private IEnumerable<EmployeeDTO> _subordinates = new List<EmployeeDTO>();
+    private IEnumerable<int> _allManagerIds = new List<int>();
 
-  
+    private EmployeeTreeNode _employeeTree;
 
 
     private async Task OnEmployeeSelected(string selectedId)
@@ -58,6 +72,8 @@
         _selectedEmployee = _employees.FirstOrDefault(e => e.Id == id);
         _subordinates = await _empApiService.GetAllSubordinates(id);
         _higherAuthorities = await _empApiService.GetHigherAuthorities(id);
+        _employeeTree = await _empApiService.BuildEmployeeTree(id);
+
 
 
 
@@ -67,6 +83,8 @@
     protected override async Task OnInitializedAsync()
     {
         _employees = await _empApiService.GetAllEmployees();
+        _allManagerIds = await _empApiService.GetAllManagerIds();
+
 
 
     }

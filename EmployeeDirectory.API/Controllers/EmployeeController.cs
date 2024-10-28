@@ -29,8 +29,26 @@ namespace EmployeeDirectory.API.Controllers
             var _subordinates=await _employeeService.GetSubordinatesAsync(managerId);
             return Ok(_subordinates);
         }
+        [HttpGet("GetNextSubordinates/{managerId}")]
+        public async Task<ActionResult<IEnumerable<EmployeeDTO>>> GetNextSubordinates(int managerId)
+        {
+            var _nextSubordinates = await _employeeService.GetNextSubordinatesAsync(managerId);
+            return Ok(_nextSubordinates);
+        }
+        [HttpGet("EmployeeTree/{id}")]
+        public async Task<ActionResult<IEnumerable<EmployeeDTO>>> BuildempTree(int id)
+        {
+            var _empTree = await _employeeService.BuildFullEmployeeTree(id);
+            return Ok(_empTree);
+        }
         [HttpGet]
-        [Route("GetHigherAuthorities")]
+        [Route("AllManagerIds")]
+        public async Task<ActionResult<IEnumerable<int>>> GetAllManagerIds()
+        {
+            var _allManagerIds = await _employeeService.GetAllManagersId();
+            return Ok(_allManagerIds);
+        }
+        [HttpGet("GetHigherAuthorities/{id}")]
         public async Task<ActionResult<IEnumerable<EmployeeDTO>>> GetAllHigherAuthorities(int id)
         {
             var _higherEmployees = await _employeeService.GetHigherAuthorities(id);
