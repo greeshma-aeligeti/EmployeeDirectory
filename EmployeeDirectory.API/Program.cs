@@ -5,6 +5,7 @@ using EmployeeDirectory.DAL;
 using EmployeeDirectory.DAL.IRepositories;
 using EmployeeDirectory.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System.Text.Json;
 
 namespace EmployeeDirectory.API
@@ -43,7 +44,10 @@ namespace EmployeeDirectory.API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Employee API", Version = "v1" });
+            });
 
             builder.Services.AddScoped<IEmployeeService, EmployeeService>();
             builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -58,7 +62,10 @@ namespace EmployeeDirectory.API
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Employee API v1");
+                });
             }
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();

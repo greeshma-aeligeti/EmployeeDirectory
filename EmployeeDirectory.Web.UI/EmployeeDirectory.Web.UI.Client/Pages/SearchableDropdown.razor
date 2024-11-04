@@ -1,6 +1,5 @@
 ﻿@page "/customdropdown2"
 @typeparam TItem
-
 @using System.Reflection
 @using Blazorise
 @using Blazorise.Components
@@ -20,7 +19,7 @@
         {
             @foreach (var item in filteredItems)
             {
-                <a class="dropdown-item" href="javascript:void(0)" @onclick="() => OnSelectedValueChanged(GetPropertyValue(item, IdPropertyName))"> @GetPropertyValue(item, IdPropertyName) (@GetPropertyValue(item, DisplayPropertyName))</a>
+                <a class="dropdown-item" href="javascript:void(0)" @onclick="() => OnSelectedValueChanged(GetPropertyValue(item, IdPropertyName))">  @GetPropertyValue(item, DisplayPropertyName)</a>
             }
         }
     </div>

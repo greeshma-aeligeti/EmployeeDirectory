@@ -10,6 +10,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using EmployeeDirectory.BLL;
 
 namespace EmployeeDirectory.API.APIServices
 {
@@ -17,6 +18,12 @@ namespace EmployeeDirectory.API.APIServices
     {
         private readonly HttpClient _httpClient;
         private IEnumerable<EmployeeDTO> _employees;
+        private IEnumerable<EmployeeDTO> _subordinates;
+        private IEnumerable<EmployeeDTO> _higherEmployees;
+        private IEnumerable<EmployeeDTO> _nextSubordinates;
+        private IEnumerable<int> _allManagerIds;
+        private EmployeeTreeNode _employeeTreeNode;
+        private EmployeeDTO _rootEmployee;
         public EmployeeAPIService(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -33,6 +40,85 @@ namespace EmployeeDirectory.API.APIServices
             return _employees;
 
         }
+
+        public async Task<EmployeeDTO> GetRootEmployee()
+        {
+            var _response = await _httpClient.GetStringAsync("api/Employee/root");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _rootEmployee=JsonConvert.DeserializeObject<EmployeeDTO>(_response,settings);
+            return _rootEmployee;
+
+        }
+        public async Task<IEnumerable<int>> GetAllManagerIds()
+        {
+            var _response = await _httpClient.GetStringAsync("api/Employee/AllManagerIds");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _allManagerIds = JsonConvert.DeserializeObject<List<int>>(_response, settings);
+            return _allManagerIds;
+
+        }
+        public async Task<IEnumerable<EmployeeDTO>> GetAllSubordinates(int managerId)
+        {
+            var _response = await _httpClient.GetStringAsync($"api/Employee/GetSubordinates/{managerId}");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _nextSubordinates = JsonConvert.DeserializeObject<List<EmployeeDTO>>(_response, settings);
+            return _nextSubordinates;
+        }
+
+        public async Task<IEnumerable<EmployeeDTO>> GetNextSubordinates(int managerId)
+        {
+            var _response = await _httpClient.GetStringAsync($"api/Employee/GetNextSubordinates/{managerId}");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _subordinates = JsonConvert.DeserializeObject<List<EmployeeDTO>>(_response, settings);
+            return _subordinates;
+        }
+
+        public async Task<EmployeeTreeNode> BuildEmployeeTree(int id)
+        {
+            var _response = await _httpClient.GetStringAsync($"api/Employee/EmployeeTree/{id}");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _employeeTreeNode= JsonConvert.DeserializeObject<EmployeeTreeNode>(_response, settings);
+            return _employeeTreeNode;
+
+        }
+        public async Task<IEnumerable<EmployeeDTO>> GetHigherAuthorities(int managerId)
+        {
+            var _response = await _httpClient.GetStringAsync($"api/Employee/GetHigherAuthorities/{managerId}");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _higherEmployees = JsonConvert.DeserializeObject<List<EmployeeDTO>>(_response, settings);
+            return _higherEmployees;
+        }
+        public async Task<List<EmployeeDTO>> LoadSubordinates(int managerId)
+        {
+            // Fetch the next subordinates from the API endpoint
+            var _subordinates = await GetNextSubordinates(managerId);
+            return _subordinates.ToList();
+        }
+
         public async Task<EmployeeDTO> AddEmployee(EmployeeDTO employeeDTO)
 
         {

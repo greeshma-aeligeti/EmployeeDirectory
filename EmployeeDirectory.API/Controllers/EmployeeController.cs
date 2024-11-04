@@ -23,12 +23,40 @@ namespace EmployeeDirectory.API.Controllers
             return Ok(_addEmployee);
         }
 
-        [HttpGet]
-        [Route("GetSubordinates")]
+        [HttpGet("GetSubordinates/{managerId}")]
         public async Task<ActionResult<IEnumerable<EmployeeDTO>>> GetAllSubordinates(int managerId)
         {
             var _subordinates=await _employeeService.GetSubordinatesAsync(managerId);
             return Ok(_subordinates);
+        }
+        [HttpGet("GetNextSubordinates/{managerId}")]
+        public async Task<ActionResult<IEnumerable<EmployeeDTO>>> GetNextSubordinates(int managerId)
+        {
+            var _nextSubordinates = await _employeeService.GetNextSubordinatesAsync(managerId);
+            return Ok(_nextSubordinates);
+        }
+        [HttpGet("EmployeeTree/{id}")]
+        public async Task<ActionResult<IEnumerable<EmployeeDTO>>> BuildempTree(int id)
+        {
+            var _empTree = await _employeeService.BuildFullEmployeeTree(id);
+            return Ok(_empTree);
+        }
+      
+
+        
+
+        [HttpGet]
+        [Route("AllManagerIds")]
+        public async Task<ActionResult<IEnumerable<int>>> GetAllManagerIds()
+        {
+            var _allManagerIds = await _employeeService.GetAllManagersId();
+            return Ok(_allManagerIds);
+        }
+        [HttpGet("GetHigherAuthorities/{id}")]
+        public async Task<ActionResult<IEnumerable<EmployeeDTO>>> GetAllHigherAuthorities(int id)
+        {
+            var _higherEmployees = await _employeeService.GetHigherAuthorities(id);
+            return Ok(_higherEmployees);
         }
         [HttpGet]
         [Route("AllEmployees")]
@@ -43,6 +71,12 @@ namespace EmployeeDirectory.API.Controllers
         {
             var _employee = await _employeeService.GetEmployeeByID(id);
             return Ok(_employee);
+        }
+        [HttpGet("root")]
+        public async Task<ActionResult<EmployeeDTO>> GetRootEmployee()
+        {
+            var _rootEmployee=await _employeeService.GetRootEmployee();
+            return Ok(_rootEmployee);
         }
        
     }

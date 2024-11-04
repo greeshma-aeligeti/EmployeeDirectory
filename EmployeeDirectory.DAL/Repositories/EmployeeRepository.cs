@@ -17,6 +17,11 @@ namespace EmployeeDirectory.DAL.Repositories
         {
             _dbContext = dbContext;
         }
+        public async Task UpdateEmployeeAsync(Employee employee)
+        {
+            _dbContext.Employees.Update(employee);
+            await _dbContext.SaveChangesAsync();
+        }
         public async Task<Employee> AddEmployee(Employee employee)
         {
            
@@ -65,6 +70,16 @@ namespace EmployeeDirectory.DAL.Repositories
           //  throw new NotImplementedException();
         }
 
+        public async Task<List<int>> GetAllManagerIDs()
+        {
+            var _allManagerIds = await _dbContext.Employees
+                  .Where(e => e.ManagerID.HasValue)
+                  .Select(e => e.ManagerID.Value)
+                  .Distinct()
+                  .ToListAsync();
+            return _allManagerIds;
+        }
+
         public async Task<Employee> GetEmployeeByID(int id)
         {
 
@@ -74,6 +89,32 @@ namespace EmployeeDirectory.DAL.Repositories
             return _employee;
 
             // throw new NotImplementedException();
+        }
+
+        public async Task<List<Employee>> GetHigherAuthorities(int id)
+        {
+            var _employee=await GetEmployeeByID(id);
+            if(_employee==null || string.IsNullOrEmpty(_employee.Path))
+            {
+                return new List<Employee>();
+            }
+            var _pathIds=_employee.Path.Split('/').Select(int.Parse).ToList();
+            _pathIds.Remove(id);
+
+            List<Employee> _higherEmployees = new List<Employee>();
+            foreach(var  _pathId in _pathIds) {
+            var _emp=await GetEmployeeByID(_pathId);
+                _higherEmployees.Add(_emp);
+            }
+            return _higherEmployees;
+            //throw new NotImplementedException();
+
+        }
+
+        public async Task<List<Employee>> GetNextSubordinatesAsync(int managerId)
+        {
+            return await _dbContext.Employees.Where(e=>e.ManagerID == managerId).ToListAsync();
+
         }
 
         public async Task<List<Employee>> GetSubordinatesAsync(int managerId)
@@ -86,6 +127,13 @@ namespace EmployeeDirectory.DAL.Repositories
             return await _dbContext.Employees
                                  .Where(e => e.Path.StartsWith(_manager.Path + "/"))
                                  .ToListAsync();
+        }
+
+        public async Task<Employee> GetRootEmployee()
+        {
+
+            return await _dbContext.Employees.FirstOrDefaultAsync(e => e.RoleID == 5);
+            //throw new NotImplementedException();
         }
     }
 }
