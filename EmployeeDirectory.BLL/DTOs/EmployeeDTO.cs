@@ -15,6 +15,9 @@ namespace EmployeeDirectory.BLL.DTOs
         public int RoleID {  get; set; }
         public int? ManagerID { get; set; }
         public string Path { get; set; }
+        public byte[]? Photo { get; set; } // Image binary data
+        public string? PhotoContentType { get; set; } // ( image/png)
+
 
 
     }

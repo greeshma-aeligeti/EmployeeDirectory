@@ -1,8 +1,10 @@
 ﻿@page "/"
 @inject EmployeeAPIService _empApiService
 @using EmployeeDirectory.BLL
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
+@attribute [Authorize]
 <PageTitle>Home</PageTitle>
 
 

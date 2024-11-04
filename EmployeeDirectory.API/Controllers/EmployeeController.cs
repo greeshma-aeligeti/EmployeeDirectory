@@ -41,6 +41,10 @@ namespace EmployeeDirectory.API.Controllers
             var _empTree = await _employeeService.BuildFullEmployeeTree(id);
             return Ok(_empTree);
         }
+      
+
+        
+
         [HttpGet]
         [Route("AllManagerIds")]
         public async Task<ActionResult<IEnumerable<int>>> GetAllManagerIds()
@@ -67,6 +71,12 @@ namespace EmployeeDirectory.API.Controllers
         {
             var _employee = await _employeeService.GetEmployeeByID(id);
             return Ok(_employee);
+        }
+        [HttpGet("root")]
+        public async Task<ActionResult<EmployeeDTO>> GetRootEmployee()
+        {
+            var _rootEmployee=await _employeeService.GetRootEmployee();
+            return Ok(_rootEmployee);
         }
        
     }

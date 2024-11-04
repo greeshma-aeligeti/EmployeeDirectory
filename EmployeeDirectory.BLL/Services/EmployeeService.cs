@@ -18,6 +18,28 @@ namespace EmployeeDirectory.BLL.Services
             _repository = repository;
         
         }
+
+        public async Task LoadSubordinates(EmployeeTreeNode parentNode)
+        {
+            if (parentNode.HasSubordinatesLoaded) return;
+
+            var _subordinates = await GetNextSubordinatesAsync(parentNode.Employee.Id);
+
+            foreach (var _subordinate in _subordinates)
+            {
+                var _subordinateNode = new EmployeeTreeNode
+                {
+                    Employee = _subordinate,
+                    Subordinates = new List<EmployeeTreeNode>(),
+                    HasSubordinatesLoaded = false // Subordinates of this node are not loaded yet
+                };
+
+                parentNode.Subordinates.Add(_subordinateNode);
+            }
+
+            parentNode.HasSubordinatesLoaded = true; // Mark as loaded
+        }
+
         public async Task<EmployeeTreeNode> BuildFullEmployeeTree(int rootEmployeeId)
         {
             // Get the root employee (current employee)
@@ -36,45 +58,38 @@ namespace EmployeeDirectory.BLL.Services
                 var _authorityNode = new EmployeeTreeNode
                 {
                     Employee = _authority,
-                    Subordinates = new List<EmployeeTreeNode>()
+                    Subordinates = new List<EmployeeTreeNode>(),
+                    HasSubordinatesLoaded = false // Initially, no subordinates are loaded
                 };
 
-                // If it's the first node, it's the top of the tree
                 if (_topNode == null)
                 {
                     _topNode = _authorityNode;
                 }
 
-                // Attach the previous node to the current one
                 if (_currentNode != null)
                 {
                     _currentNode.Subordinates.Add(_authorityNode);
                 }
 
-                // Move to the current node
                 _currentNode = _authorityNode;
             }
 
-            // Create the node for the root employee (who we passed in)
             var _rootEmployeeNode = new EmployeeTreeNode
             {
                 Employee = _rootEmployee,
-                Subordinates = new List<EmployeeTreeNode>()
+                Subordinates = new List<EmployeeTreeNode>(),
+                HasSubordinatesLoaded = false // Set this flag for lazy loading
             };
 
-            // Attach the root employee node to the last higher authority
             if (_currentNode != null)
             {
                 _currentNode.Subordinates.Add(_rootEmployeeNode);
             }
             else
             {
-                // If there are no higher authorities, the root employee is the top node
                 _topNode = _rootEmployeeNode;
             }
-
-            // Recursively add all subordinates of the root employee
-            await AddSubordinates(_rootEmployeeNode);
 
             return _topNode;
         }
@@ -167,6 +182,7 @@ namespace EmployeeDirectory.BLL.Services
                 PhoneNumber = employeeDTO.Phone,
                 EmailAddress = employeeDTO.Email,
                 RoleID = employeeDTO.RoleID,
+                
                 ManagerID = employeeDTO.ManagerID,
                 Path = employeeDTO.Path
             };
@@ -186,7 +202,11 @@ namespace EmployeeDirectory.BLL.Services
             };
         }
 
-      
-       
+        public async Task<EmployeeDTO> GetRootEmployee()
+        {
+            var _rootEmp = await _repository.GetRootEmployee();
+            return MapToEmployeeDTO(_rootEmp);
+            //throw new NotImplementedException();
+        }
     }
 }

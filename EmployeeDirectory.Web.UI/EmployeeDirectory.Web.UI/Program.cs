@@ -2,6 +2,8 @@ using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using EmployeeDirectory.API.APIServices;
+using EmployeeDirectory.BLL.IServices;
+using EmployeeDirectory.BLL.Services;
 using EmployeeDirectory.Web.UI.Authentication;
 using EmployeeDirectory.Web.UI.Client.Pages;
 using EmployeeDirectory.Web.UI.Components;
@@ -27,7 +29,8 @@ namespace EmployeeDirectory.Web.UI
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<EmployeeAPIService>();
-
+/*            builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+*/
 
             builder.Services.AddHttpClient<EmployeeAPIService>(client =>
             {

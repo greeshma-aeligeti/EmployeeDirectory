@@ -23,6 +23,7 @@ namespace EmployeeDirectory.API.APIServices
         private IEnumerable<EmployeeDTO> _nextSubordinates;
         private IEnumerable<int> _allManagerIds;
         private EmployeeTreeNode _employeeTreeNode;
+        private EmployeeDTO _rootEmployee;
         public EmployeeAPIService(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -37,6 +38,19 @@ namespace EmployeeDirectory.API.APIServices
             };
             _employees= JsonConvert.DeserializeObject<List<EmployeeDTO>>(_response, settings);
             return _employees;
+
+        }
+
+        public async Task<EmployeeDTO> GetRootEmployee()
+        {
+            var _response = await _httpClient.GetStringAsync("api/Employee/root");
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+            };
+            _rootEmployee=JsonConvert.DeserializeObject<EmployeeDTO>(_response,settings);
+            return _rootEmployee;
 
         }
         public async Task<IEnumerable<int>> GetAllManagerIds()
@@ -98,6 +112,13 @@ namespace EmployeeDirectory.API.APIServices
             _higherEmployees = JsonConvert.DeserializeObject<List<EmployeeDTO>>(_response, settings);
             return _higherEmployees;
         }
+        public async Task<List<EmployeeDTO>> LoadSubordinates(int managerId)
+        {
+            // Fetch the next subordinates from the API endpoint
+            var _subordinates = await GetNextSubordinates(managerId);
+            return _subordinates.ToList();
+        }
+
         public async Task<EmployeeDTO> AddEmployee(EmployeeDTO employeeDTO)
 
         {

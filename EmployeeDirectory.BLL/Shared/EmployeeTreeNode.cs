@@ -7,6 +7,7 @@ namespace EmployeeDirectory.BLL
     {
         public EmployeeDTO Employee { get; set; }
         public List<EmployeeTreeNode> Subordinates { get; set; }
+        public bool HasSubordinatesLoaded { get; set; }
     }
 
 }

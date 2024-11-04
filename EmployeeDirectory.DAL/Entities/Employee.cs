@@ -28,6 +28,7 @@ namespace EmployeeDirectory.DAL.Entities
         public Employee Manager { get; set; }
 
         public ICollection<Employee> Subordinates { get; set; }
+ 
 
 
 

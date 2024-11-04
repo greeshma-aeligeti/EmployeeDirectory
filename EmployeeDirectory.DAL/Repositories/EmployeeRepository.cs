@@ -17,6 +17,11 @@ namespace EmployeeDirectory.DAL.Repositories
         {
             _dbContext = dbContext;
         }
+        public async Task UpdateEmployeeAsync(Employee employee)
+        {
+            _dbContext.Employees.Update(employee);
+            await _dbContext.SaveChangesAsync();
+        }
         public async Task<Employee> AddEmployee(Employee employee)
         {
            
@@ -122,6 +127,13 @@ namespace EmployeeDirectory.DAL.Repositories
             return await _dbContext.Employees
                                  .Where(e => e.Path.StartsWith(_manager.Path + "/"))
                                  .ToListAsync();
+        }
+
+        public async Task<Employee> GetRootEmployee()
+        {
+
+            return await _dbContext.Employees.FirstOrDefaultAsync(e => e.RoleID == 5);
+            //throw new NotImplementedException();
         }
     }
 }

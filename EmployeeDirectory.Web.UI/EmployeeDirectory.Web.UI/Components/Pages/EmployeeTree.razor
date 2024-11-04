@@ -1,17 +1,21 @@
 ﻿@using EmployeeDirectory.BLL
 @using EmployeeDirectory.Web.UI.Components.Pages;
-
-<div class="employee-tree-container ">
-    <!-- Apply root-node class if it's the root -->
-    <div class=" @(IsRoot ? "root-node" : "") employee-card">
+@using EmployeeDirectory.BLL.IServices
+  
+@inject EmployeeAPIService _empApiService
+<div class="employee-tree-container">
+    <div class="employee-card @(_isSelected ? "selected-node" : "")" @onclick="ToggleSubordinates">
         <div class="employee-info">
             <h4>@EmployeeNode.Employee.Name</h4>
+            @if (EmployeeNode.Subordinates != null && EmployeeNode.Subordinates.Any())
+            {
+                <div class="expand-collapse-icon">@* @((_isExpanded ? "▼" : "▶")) *@</div>
+            }
         </div>
     </div>
 
-    @if (EmployeeNode.Subordinates != null && EmployeeNode.Subordinates.Any())
+    @if (_isExpanded && EmployeeNode.Subordinates != null && EmployeeNode.Subordinates.Any())
     {
-        <div class="arrow-down"></div> <!-- Downward arrow to indicate subordinates -->
         <div class="subordinates-row">
             @foreach (var subordinate in EmployeeNode.Subordinates)
             {
@@ -21,22 +25,61 @@
     }
 </div>
 
-@code {
-    [Parameter]
-    public EmployeeTreeNode EmployeeNode { get; set; }
+    @code {
+        [Parameter]
+        public EmployeeTreeNode EmployeeNode { get; set; }
 
-    [Parameter]
-    public EmployeeDTO RootEmployee { get; set; }
-    [Parameter]
-    public EmployeeDTO SelectedEmployee{ get; set; }
+        [Parameter]
+        public EmployeeDTO RootEmployee { get; set; }
 
-    private bool IsRoot => EmployeeNode.Employee.Id == SelectedEmployee.Id; // Check if this is the root node
+        [Parameter]
+        public EmployeeDTO SelectedEmployee { get; set; }
 
-}
+        private bool _isExpanded { get; set; } = false;
+        private bool _isSelected => EmployeeNode.Employee.Id == SelectedEmployee?.Id;
+
+        private async Task ToggleSubordinates()
+        {
+            _isExpanded = !_isExpanded;
+
+            // Check if the node has subordinates loaded before attempting to load again
+            if (_isExpanded && !EmployeeNode.HasSubordinatesLoaded)
+            {
+                await LoadSubordinatesAsync();
+            }
+
+            SelectedEmployee = EmployeeNode.Employee; // Highlight this node
+        }
+
+        private async Task LoadSubordinatesAsync()
+        {
+            // Clear existing subordinates to prevent duplication
+            EmployeeNode.Subordinates.Clear();
+
+            var subordinates = await _empApiService.LoadSubordinates(EmployeeNode.Employee.Id);
+
+            foreach (var subordinate in subordinates)
+            {
+                // Only add subordinate if it doesn't already exist in the list
+                if (!EmployeeNode.Subordinates.Any(s => s.Employee.Id == subordinate.Id))
+                {
+                    EmployeeNode.Subordinates.Add(new EmployeeTreeNode
+                    {
+                        Employee = subordinate,
+                        Subordinates = new List<EmployeeTreeNode>(),
+                        HasSubordinatesLoaded = false // Flag for lazy loading
+                    });
+                }
+            }
+
+            EmployeeNode.HasSubordinatesLoaded = true; // Mark as loaded
+        }
+    }
+
+
 
 
 <style>
-
     .root-node {
         border: 2px solid #007bff; /* Blue border for highlighting */
         background-color: #e7f1ff; /* Light blue background */
@@ -113,5 +156,30 @@
         .subordinates-row .employee-tree-container {
             margin: 0;
         }
+    .selected-node {
+        border: 2px solid #007bff;
+        background-color: #e7f1ff;
+    }
+
+    .employee-tree-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .employee-card {
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .expand-collapse-icon {
+        font-size: 14px;
+        color: #007bff;
+        margin-top: 5px;
+    }
 
 </style>
